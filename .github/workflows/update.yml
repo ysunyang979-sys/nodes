@@ -2,9 +2,8 @@ name: 全自动节点测速 (每6小时更新)
 
 on:
   schedule:
-    # 国际标准时间，加上8小时刚好是北京时间的 0点, 6点, 12点, 18点
     - cron: '0 4,10,16,22 * * *'
-  workflow_dispatch: # 允许你手动点击按钮触发测速
+  workflow_dispatch:
 
 jobs:
   run-speedtest:
@@ -22,13 +21,13 @@ jobs:
       - name: 3. 开始极速测活并监控 (智能退出)
         run: |
           echo "🚀 测速引擎启动中..."
-          # 指定配置文件为当前目录的 config.yaml
+          # 【注意这一行！新版指定了 config.yaml】
           ./subs-check -f config.yaml > run.log 2>&1 &
           PID=$!
           
           # 智能监控循环
           while true; do
-            # 检查程序是不是报错崩溃了
+            # 【注意这一段！新版加了崩溃报警】
             if ! kill -0 $PID 2>/dev/null; then
               echo "🚨 糟糕！测速内核异常退出了！下面是报错日志："
               cat run.log
@@ -49,7 +48,6 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          # 只把 output 文件夹里的结果保存下来
           git add output/*
           git commit -m "Auto update nodes: $(date +'%Y-%m-%d %H:%M')" || true
           git push
