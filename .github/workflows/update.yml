@@ -24,21 +24,17 @@ jobs:
           ./subs-check -f config.yaml > run.log 2>&1 &
           PID=$!
           
-          # 智能监控循环
           while true; do
-            # 检查程序是不是崩溃了
             if ! kill -0 $PID 2>/dev/null; then
               echo "🚨 糟糕！测速内核异常退出了！下面是报错日志："
               cat run.log
               exit 1
             fi
             
-            # 💡 新增：实时把最新的3条测速日志打印到屏幕上
             echo "📡 当前实时进度看这里 👇"
             tail -n 3 run.log
             echo "------------------------"
             
-            # 检查是否测完
             if grep -q "保存本地成功" run.log 2>/dev/null; then
               echo "✅ 检测到完成信号，强制终止内核！"
               kill -9 $PID
@@ -52,6 +48,9 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/*
+          
+          # 💡 【关键修复】明确指令：只提取 txt 和 yaml 节点文件，抛弃那个114MB的垃圾程序！
+          git add output/*.txt output/*.yaml
+          
           git commit -m "Auto update nodes: $(date +'%Y-%m-%d %H:%M')" || true
           git push
