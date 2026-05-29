@@ -1,0 +1,47 @@
+name: 全自动节点测速 (每6小时更新)
+
+on:
+  schedule:
+    # 国际标准时间，加上8小时刚好是北京时间的 0点, 6点, 12点, 18点
+    - cron: '0 4,10,16,22 * * *'
+  workflow_dispatch: # 允许你手动点击按钮触发测速
+
+jobs:
+  run-speedtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 拉取仓库文件
+        uses: actions/checkout@v3
+
+      - name: 2. 下载最新的测速内核
+        run: |
+          wget https://github.com/beck-8/subs-check/releases/latest/download/subs-check_Linux_x86_64.tar.gz
+          tar -xzvf subs-check_Linux_x86_64.tar.gz
+          chmod +x subs-check
+
+      - name: 3. 开始极速测活并监控 (智能退出)
+        run: |
+          echo "🚀 测速引擎启动中..."
+          # 在后台运行并输出日志到 run.log
+          ./subs-check > run.log 2>&1 &
+          PID=$!
+          
+          # 每 10 秒看一眼日志，直到发现测速完成的信号
+          while true; do
+            if grep -q "保存本地成功" run.log 2>/dev/null; then
+              echo "✅ 检测到完成信号，强制终止内核！"
+              kill -9 $PID
+              break
+            fi
+            sleep 10
+          done
+          echo "🎉 本次测速圆满完成！"
+
+      - name: 4. 把新鲜节点提交保存到 Github
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          # 只把 output 文件夹里的结果保存下来
+          git add output/*
+          git commit -m "Auto update nodes: $(date +'%Y-%m-%d %H:%M')" || true
+          git push
