@@ -44,3 +44,12 @@ jobs:
             sleep 10
           done
           echo "🎉 本次测速圆满完成！"
+
+      - name: 4. 把新鲜节点提交保存到 Github
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          # 只把 output 文件夹里的结果保存下来
+          git add output/*
+          git commit -m "Auto update nodes: $(date +'%Y-%m-%d %H:%M')" || true
+          git push
