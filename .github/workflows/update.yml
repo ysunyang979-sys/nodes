@@ -22,12 +22,20 @@ jobs:
       - name: 3. 开始极速测活并监控 (智能退出)
         run: |
           echo "🚀 测速引擎启动中..."
-          # 在后台运行并输出日志到 run.log
-          ./subs-check > run.log 2>&1 &
+          # 指定配置文件为当前目录的 config.yaml
+          ./subs-check -f config.yaml > run.log 2>&1 &
           PID=$!
           
-          # 每 10 秒看一眼日志，直到发现测速完成的信号
+          # 智能监控循环
           while true; do
+            # 检查程序是不是报错崩溃了
+            if ! kill -0 $PID 2>/dev/null; then
+              echo "🚨 糟糕！测速内核异常退出了！下面是报错日志："
+              cat run.log
+              exit 1
+            fi
+            
+            # 检查是否测速完成
             if grep -q "保存本地成功" run.log 2>/dev/null; then
               echo "✅ 检测到完成信号，强制终止内核！"
               kill -9 $PID
@@ -36,12 +44,3 @@ jobs:
             sleep 10
           done
           echo "🎉 本次测速圆满完成！"
-
-      - name: 4. 把新鲜节点提交保存到 Github
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          # 只把 output 文件夹里的结果保存下来
-          git add output/*
-          git commit -m "Auto update nodes: $(date +'%Y-%m-%d %H:%M')" || true
-          git push
