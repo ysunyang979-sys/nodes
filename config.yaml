@@ -1,0 +1,37 @@
+concurrent: 64
+check-interval: 120
+timeout: 3000
+min-speed: 0
+download-timeout: 5
+speed-test-url: https://speed.cloudflare.com/__down?bytes=15000000
+save-method: local
+github-gist-id: ''
+github-token: ''
+github-api-mirror: ''
+worker-url: https://example.worker.dev
+worker-token: 1234567890
+webdav-username: admin
+webdav-password: admin
+webdav-url: https://example.com/dav/
+enable-web-ui: true
+listen-port: 127.0.0.1:8199
+old-api-key: admin
+api-key: 808c94ccfd1028a21f7b50d8287c55d5
+sub-store-port: :8299
+githubproxy: 自动选择
+github-proxy: https://gh.dwsy.link/
+sub-urls:
+  - http://127.0.0.1:8199/all.yaml
+  - https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta.yaml
+  - https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml
+  - https://raw.githubusercontent.com/go4sharing/sub/main/sub.yaml
+  - https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/all_configs.txt
+mihomo-overwrite-url: http://127.0.0.1:8199/bdg.yaml
+rename-node: true
+media-check: false
+keep-success-proxies: false
+print-progress: true
+sub-urls-retry: 3
+subscheck-version: v1.4.0
+gui-auto: false
+success-limit: 0
